@@ -24,7 +24,7 @@ type Program []int
 
 // Creates a new virtual machine
 // size is the size of the VM's memory in words
-func NewVM(size int) (vm *VM, err error) {
+func New(size int) (vm *VM, err error) {
 	if size > (1<<32-1) || size < 0 {
 		return vm, errors.New("vm: size not within range")
 	}

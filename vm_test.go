@@ -7,7 +7,7 @@ import (
 )
 
 func TestRun(t *testing.T) {
-	vm, err := NewVM(1 << 10)
+	vm, err := New(1 << 10)
 	output := &bytes.Buffer{}
 	vm.Stdout = output
 	tests := []func(){
@@ -319,7 +319,7 @@ func TestRun(t *testing.T) {
         },
 	}
 	for _, f := range tests {
-        vm, err = NewVM(1 << 10)
+        vm, err = New(1 << 10)
         output = &bytes.Buffer{}
         vm.Stdout = output
 		f()
