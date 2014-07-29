@@ -277,12 +277,12 @@ func TestRun(t *testing.T) {
                 Add,
                 Return,
             }
-            vm.Run(prog, 0, true)
+            vm.Run(prog, 0, false)
             if output.String() != "5\n" {
                 t.Error("Error on fibonacci test: expected: 5\n actual: ", output.String())
             }
         },
-        // iterative fibonacci method
+        // tail-recursive fibonacci method
         func() {
             fib, recur := 12, 19
             a, b, n := 0, 1, 2
