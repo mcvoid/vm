@@ -41,7 +41,8 @@ func New(size int) (vm *VM, err error) {
 // Runs a program on the VM
 // src is the source of the bytecode
 // start is the index of the code starting point
-// main is the word index of the program entry point
+// trace determines whether stack traces are printed to Stderr
+// for each instruction.
 func (vm *VM) Run(src Program, start int, trace bool) {
 	vm.code = src
 	vm.ip = start
