@@ -70,4 +70,7 @@ func TestAckermannPhi(t *testing.T) {
     }
 
     vm.Run(prog, 0, true)
+    if output.String() != "27\n" {
+        t.Error("Error on Ackermann Phi test: Phi(3, 3, 2) = 27, actual: ", output.String())
+    }
 }
