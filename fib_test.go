@@ -1,8 +1,8 @@
 package vm
 
 import (
-    "testing"
-    "bytes"
+	"bytes"
+	"testing"
 )
 
 func TestFibonacci(t *testing.T) {

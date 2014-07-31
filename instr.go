@@ -37,10 +37,57 @@ const (
 	*/
 	Add
 	/*
-	   Substract pops two values from the stack and pushes the difference of the seccond value popped minus the first.
+	   Substract pops two values from the stack and pushes the difference of the second value popped minus the first.
 	   syntax: sub
 	*/
 	Subtract
+	/*
+	   Multiply pops two values from the stack and pushes the product of the two..
+	   syntax: mul
+	*/
+	Multiply
+	/*
+	   Divide pops two values from the stack and returns the quotient of the two values minus the remainder.
+	   syntax: div
+	*/
+	Divide
+	/*
+	   Modulo pops two values from the stack, divides them, and returns the quotient of the two values.
+	   syntax: mod
+	*/
+	Modulo
+	/*
+	   And pops two values from the stack and returns the bitwise-and of them.
+	   syntax: and
+	*/
+	And
+	/*
+	   Or pops two values from the stack and returns the bitwise-or of them.
+	   syntax: or
+	*/
+	Or
+	/*
+	   Xor pops two values from the stack and returns the bitwise-xor of them.
+	   syntax: xor
+	*/
+	Xor
+	/*
+	   Not pops two values from the stack and returns the bitwise-not of them.
+	   syntax: not
+	*/
+	Not
+	/*
+		   ShiftLeft pops two values from the stack and returns the first value, shifted
+	       to the left a number of bits as the second value.
+		   syntax: shl
+	*/
+	ShiftLeft
+	/*
+		   ShiftRight pops two values from the stack and returns the first value,
+	       logically shifted to the left a number of bits as the second value.
+		   syntax: shr
+	*/
+	ShiftRight
 	/*
 	   Pushes a literal value to the stack.
 	   syntax: push <val>
@@ -76,6 +123,7 @@ const (
 	   syntax: print <n>
 	*/
 	Print
+	//Scan
 )
 
 // Critical information about an instruction
@@ -158,6 +206,87 @@ var Default InstructionSet = InstructionSet{
 			vm.push(val1 - val2)
 		},
 		"sub",
+		0,
+		false,
+	},
+	Instruction{
+		func(vm *VM, args []int) {
+			val2, val1 := vm.pop(), vm.pop()
+			vm.push(val1 * val2)
+		},
+		"mul",
+		0,
+		false,
+	},
+	Instruction{
+		func(vm *VM, args []int) {
+			val2, val1 := vm.pop(), vm.pop()
+			vm.push(val1 / val2)
+		},
+		"div",
+		0,
+		false,
+	},
+	Instruction{
+		func(vm *VM, args []int) {
+			val2, val1 := vm.pop(), vm.pop()
+			vm.push(val1 % val2)
+		},
+		"mod",
+		0,
+		false,
+	},
+	Instruction{
+		func(vm *VM, args []int) {
+			val2, val1 := vm.pop(), vm.pop()
+			vm.push(val1 & val2)
+		},
+		"and",
+		0,
+		false,
+	},
+	Instruction{
+		func(vm *VM, args []int) {
+			val2, val1 := vm.pop(), vm.pop()
+			vm.push(val1 | val2)
+		},
+		"or",
+		0,
+		false,
+	},
+	Instruction{
+		func(vm *VM, args []int) {
+			val2, val1 := vm.pop(), vm.pop()
+			vm.push(val1 ^ val2)
+		},
+		"xor",
+		0,
+		false,
+	},
+	Instruction{
+		func(vm *VM, args []int) {
+			val1 := vm.pop()
+			vm.push(^val1)
+		},
+		"not",
+		0,
+		false,
+	},
+	Instruction{
+		func(vm *VM, args []int) {
+			val2, val1 := vm.pop(), vm.pop()
+			vm.push(val1 << uint(val2))
+		},
+		"shl",
+		0,
+		false,
+	},
+	Instruction{
+		func(vm *VM, args []int) {
+			val2, val1 := vm.pop(), vm.pop()
+			vm.push(val1 >> uint(val2))
+		},
+		"shr",
 		0,
 		false,
 	},
