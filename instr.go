@@ -12,17 +12,17 @@ const (
 	*/
 	Halt int = iota
 	/*
-	   Load reads a value from memory address addr and pushes it on the stack.
+	   Load reads a value from Memory address addr and Pushes it on the stack.
 	   syntax: load <addr>
 	*/
 	Load
 	/*
-		Store pops a value from the stack and writes it to memory at address addr.
+		Store pops a value from the stack and writes it to Memory at address addr.
 		syntax: store <addr>
 	*/
 	Store
 	/*
-	   LoadArg pushes the nth argument to the stack.
+	   LoadArg Pushes the nth argument to the stack.
 	   syntax: loadarg <n>
 	*/
 	LoadArg
@@ -32,17 +32,17 @@ const (
 	*/
 	StoreArg
 	/*
-	   Add pops two values from the stack and pushes the sum of those values.
+	   Add pops two values from the stack and Pushes the sum of those values.
 	   syntax: add
 	*/
 	Add
 	/*
-	   Substract pops two values from the stack and pushes the difference of the second value popped minus the first.
+	   Substract pops two values from the stack and Pushes the difference of the second value popped minus the first.
 	   syntax: sub
 	*/
 	Subtract
 	/*
-	   Multiply pops two values from the stack and pushes the product of the two..
+	   Multiply pops two values from the stack and Pushes the product of the two..
 	   syntax: mul
 	*/
 	Multiply
@@ -77,20 +77,20 @@ const (
 	*/
 	Not
 	/*
-		   ShiftLeft pops two values from the stack and returns the first value, shifted
-	       to the left a number of bits as the second value.
-		   syntax: shl
+		ShiftLeft pops two values from the stack and returns the first value, shifted
+		to the left a number of bits as the second value.
+		syntax: shl
 	*/
 	ShiftLeft
 	/*
-		   ShiftRight pops two values from the stack and returns the first value,
-	       logically shifted to the left a number of bits as the second value.
-		   syntax: shr
+		ShiftRight pops two values from the stack and returns the first value,
+		logically shifted to the left a number of bits as the second value.
+		syntax: shr
 	*/
 	ShiftRight
 	/*
 	   Pushes a literal value to the stack.
-	   syntax: push <val>
+	   syntax: Push <val>
 	*/
 	Push
 	/*
@@ -114,7 +114,7 @@ const (
 	*/
 	Call
 	/*
-	   Pops a value from the current stack frame, returns from the function, and pushes the value back.
+	   Pops a value from the current stack frame, returns from the function, and Pushes the value back.
 	   syntax: ret
 	*/
 	Return
@@ -126,250 +126,258 @@ const (
 	//Scan
 )
 
-// Critical information about an instruction
+// Instruction contains critical information about a single instruction for the VM.
 type Instruction struct {
-	Action func(*VM, []int) // code that is executed by the instruction.
-	Text   string           // the textual representaion of the instruction.
-	Args   int              // the number of arguments it has.
-	Halts  bool             // Whether the instruction halts execution.
+	// Action is the code which is called that is executed upon the vm to change its state.
+	// args is any arguments to the instruction which follow in the bytecode.
+	// len(args) = Args
+	Action func(vm *VM, args []int)
+	Text   string // Text is the textual representaion of the instruction as seen in stack traces.
+	Args   int    // Args tells the VM how many arguments to pull from the code.
+	Halts  bool   // Halts determines whether the instruction halts execution after running this instruction.
 }
 
+// Represents an instruction in string form.
 func (i Instruction) String() string {
 	return i.Text
 }
 
-// All of the instructions the VM can
+// InstructionSet is a collection of all of the instructions the VM can execute in a given program.
 type InstructionSet []Instruction
 
 // The behavior of each bytecode
-var Default InstructionSet = InstructionSet{
-	Instruction{
-		func(vm *VM, args []int) {},
-		"halt",
-		0,
-		true,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			addr := args[0]
-			val := vm.mem[addr]
-			vm.push(val)
+var Default InstructionSet
+
+func init() {
+	Default = InstructionSet{
+		Instruction{
+			func(vm *VM, args []int) {},
+			"halt",
+			0,
+			true,
 		},
-		"load",
-		1,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			addr := args[0]
-			val := vm.pop()
-			vm.mem[addr] = val
+		Instruction{
+			func(vm *VM, args []int) {
+				addr := args[0]
+				val := vm.Mem[addr]
+				vm.Push(val)
+			},
+			"load",
+			1,
+			false,
 		},
-		"store",
-		1,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			numargs := vm.mem[vm.fp-3]
-			addr := vm.fp - 3 - numargs + args[0]
-			val := vm.mem[addr]
-			vm.push(val)
+		Instruction{
+			func(vm *VM, args []int) {
+				addr := args[0]
+				val := vm.Pop()
+				vm.Mem[addr] = val
+			},
+			"store",
+			1,
+			false,
 		},
-		"loadarg",
-		1,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			numargs := vm.mem[vm.fp-3]
-			addr := vm.fp - 3 - numargs + args[0]
-			val := vm.pop()
-			vm.mem[addr] = val
+		Instruction{
+			func(vm *VM, args []int) {
+				numargs := vm.Mem[vm.FP-3]
+				addr := vm.FP - 3 - numargs + args[0]
+				val := vm.Mem[addr]
+				vm.Push(val)
+			},
+			"loadarg",
+			1,
+			false,
 		},
-		"storarg",
-		1,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val2, val1 := vm.pop(), vm.pop()
-			vm.push(val1 + val2)
+		Instruction{
+			func(vm *VM, args []int) {
+				numargs := vm.Mem[vm.FP-3]
+				addr := vm.FP - 3 - numargs + args[0]
+				val := vm.Pop()
+				vm.Mem[addr] = val
+			},
+			"storarg",
+			1,
+			false,
 		},
-		"add",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val2, val1 := vm.pop(), vm.pop()
-			vm.push(val1 - val2)
+		Instruction{
+			func(vm *VM, args []int) {
+				val2, val1 := vm.Pop(), vm.Pop()
+				vm.Push(val1 + val2)
+			},
+			"add",
+			0,
+			false,
 		},
-		"sub",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val2, val1 := vm.pop(), vm.pop()
-			vm.push(val1 * val2)
+		Instruction{
+			func(vm *VM, args []int) {
+				val2, val1 := vm.Pop(), vm.Pop()
+				vm.Push(val1 - val2)
+			},
+			"sub",
+			0,
+			false,
 		},
-		"mul",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val2, val1 := vm.pop(), vm.pop()
-			vm.push(val1 / val2)
+		Instruction{
+			func(vm *VM, args []int) {
+				val2, val1 := vm.Pop(), vm.Pop()
+				vm.Push(val1 * val2)
+			},
+			"mul",
+			0,
+			false,
 		},
-		"div",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val2, val1 := vm.pop(), vm.pop()
-			vm.push(val1 % val2)
+		Instruction{
+			func(vm *VM, args []int) {
+				val2, val1 := vm.Pop(), vm.Pop()
+				vm.Push(val1 / val2)
+			},
+			"div",
+			0,
+			false,
 		},
-		"mod",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val2, val1 := vm.pop(), vm.pop()
-			vm.push(val1 & val2)
+		Instruction{
+			func(vm *VM, args []int) {
+				val2, val1 := vm.Pop(), vm.Pop()
+				vm.Push(val1 % val2)
+			},
+			"mod",
+			0,
+			false,
 		},
-		"and",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val2, val1 := vm.pop(), vm.pop()
-			vm.push(val1 | val2)
+		Instruction{
+			func(vm *VM, args []int) {
+				val2, val1 := vm.Pop(), vm.Pop()
+				vm.Push(val1 & val2)
+			},
+			"and",
+			0,
+			false,
 		},
-		"or",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val2, val1 := vm.pop(), vm.pop()
-			vm.push(val1 ^ val2)
+		Instruction{
+			func(vm *VM, args []int) {
+				val2, val1 := vm.Pop(), vm.Pop()
+				vm.Push(val1 | val2)
+			},
+			"or",
+			0,
+			false,
 		},
-		"xor",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val1 := vm.pop()
-			vm.push(^val1)
+		Instruction{
+			func(vm *VM, args []int) {
+				val2, val1 := vm.Pop(), vm.Pop()
+				vm.Push(val1 ^ val2)
+			},
+			"xor",
+			0,
+			false,
 		},
-		"not",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val2, val1 := vm.pop(), vm.pop()
-			vm.push(val1 << uint(val2))
+		Instruction{
+			func(vm *VM, args []int) {
+				val1 := vm.Pop()
+				vm.Push(^val1)
+			},
+			"not",
+			0,
+			false,
 		},
-		"shl",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val2, val1 := vm.pop(), vm.pop()
-			vm.push(val1 >> uint(val2))
+		Instruction{
+			func(vm *VM, args []int) {
+				val2, val1 := vm.Pop(), vm.Pop()
+				vm.Push(val1 << uint(val2))
+			},
+			"shl",
+			0,
+			false,
 		},
-		"shr",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val := args[0]
-			vm.push(val)
+		Instruction{
+			func(vm *VM, args []int) {
+				val2, val1 := vm.Pop(), vm.Pop()
+				vm.Push(val1 >> uint(val2))
+			},
+			"shr",
+			0,
+			false,
 		},
-		"push",
-		1,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			vm.pop()
+		Instruction{
+			func(vm *VM, args []int) {
+				val := args[0]
+				vm.Push(val)
+			},
+			"Push",
+			1,
+			false,
 		},
-		"pop",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			addr := args[0]
-			if vm.pop() == 0 {
-				vm.ip = addr
-			}
+		Instruction{
+			func(vm *VM, args []int) {
+				vm.Pop()
+			},
+			"pop",
+			0,
+			false,
 		},
-		"jz",
-		1,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			addr := args[0]
-			if vm.pop() != 0 {
-				vm.ip = addr
-			}
+		Instruction{
+			func(vm *VM, args []int) {
+				addr := args[0]
+				if vm.Pop() == 0 {
+					vm.IP = addr
+				}
+			},
+			"jz",
+			1,
+			false,
 		},
-		"jnz",
-		1,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			addr, numargs := args[0], args[1]
-			vm.push(numargs) // save number of arguments (for popping later)
-			vm.push(vm.fp)   // save old frame pointer
-			vm.push(vm.ip)   // save return address
-			vm.fp = vm.sp    // make new stack frame at return address
-			vm.ip = addr     // jump!
+		Instruction{
+			func(vm *VM, args []int) {
+				addr := args[0]
+				if vm.Pop() != 0 {
+					vm.IP = addr
+				}
+			},
+			"jnz",
+			1,
+			false,
 		},
-		"call",
-		2,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			val := vm.pop()
-			vm.sp = vm.fp    // restore the stack
-			addr := vm.pop() // get return address
-			vm.fp = vm.pop() // get previous frame pointer
-			numargs := vm.pop()
-			for i := 0; i < numargs; i++ {
-				vm.pop()
-			}
-			vm.push(val)
-			vm.ip = addr // jump!
+		Instruction{
+			func(vm *VM, args []int) {
+				addr, numargs := args[0], args[1]
+				vm.Push(numargs) // save number of arguments (for popping later)
+				vm.Push(vm.FP)   // save old frame pointer
+				vm.Push(vm.IP)   // save return address
+				vm.FP = vm.SP    // make new stack frame at return address
+				vm.IP = addr     // jump!
+			},
+			"call",
+			2,
+			false,
 		},
-		"ret",
-		0,
-		false,
-	},
-	Instruction{
-		func(vm *VM, args []int) {
-			n := args[0]
-			for i := 0; i < n; i++ {
-				val := vm.pop()
-				fmt.Fprint(vm.Stdout, val)
-			}
-			fmt.Fprintln(vm.Stdout)
+		Instruction{
+			func(vm *VM, args []int) {
+				val := vm.Pop()
+				vm.SP = vm.FP    // restore the stack
+				addr := vm.Pop() // get return address
+				vm.FP = vm.Pop() // get previous frame pointer
+				numargs := vm.Pop()
+				for i := 0; i < numargs; i++ {
+					vm.Pop()
+				}
+				vm.Push(val)
+				vm.IP = addr // jump!
+			},
+			"ret",
+			0,
+			false,
 		},
-		"print",
-		1,
-		false,
-	},
+		Instruction{
+			func(vm *VM, args []int) {
+				n := args[0]
+				for i := 0; i < n; i++ {
+					val := vm.Pop()
+					fmt.Fprint(vm.Stdout, val)
+				}
+				fmt.Fprintln(vm.Stdout)
+			},
+			"print",
+			1,
+			false,
+		},
+	}
 }

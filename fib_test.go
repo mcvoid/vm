@@ -9,6 +9,7 @@ func TestFibonacci(t *testing.T) {
 	vm, _ := New(1 << 10)
 	output := &bytes.Buffer{}
 	vm.Stdout = output
+    vm.Stderr = Bitbucket{}
 
 	fib := 8
 	test_eq_1 := 15
@@ -47,7 +48,7 @@ func TestFibonacci(t *testing.T) {
 		Add,
 		Return,
 	}
-	vm.Run(prog, 0, false)
+	vm.Run(prog, 0)
 	if output.String() != "5\n" {
 		t.Error("Error on fibonacci test: expected: 5\n actual: ", output.String())
 	}
@@ -57,6 +58,7 @@ func TestFibonacciTail(t *testing.T) {
 	vm, _ := New(1 << 10)
 	output := &bytes.Buffer{}
 	vm.Stdout = output
+    vm.Stderr = Bitbucket{}
 
 	fib, recur := 12, 19
 	a, b, n := 0, 1, 2
@@ -87,7 +89,7 @@ func TestFibonacciTail(t *testing.T) {
 		JumpIfZero, fib,
 	}
 
-	vm.Run(prog, 0, false)
+	vm.Run(prog, 0)
 	if output.String() != "5\n" {
 		t.Error("Error on fibonacci test: expected: 5\n actual: ", output.String())
 	}
