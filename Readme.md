@@ -5,24 +5,30 @@
 Package vm provides a program-embeddable virtual machine which can execute
 scripts which act upon io.Reader and io.Writer.
 
-Features - A hot-swappable instruction set. - STDIN, STDOUT, STDERR readable and
-writable to any io.Reader or io.Writer - Adjustable memory size - Enable
-scripting into your Go app.
+### Features
 
-How to use: - import "github.com/mcvoid/vm" - vm, err := vm.New(1024) - prog :=
-vm.Program{vm.Push, 3, vm.Push, 5, vm.Add, vm.Print, 1, vm.Halt} - vm.Run(prog,
-0, false) - Watch it print "8" to vm.Stdout (os.Stdout by default)
+    * A hot-swappable instruction set.
+    * STDIN, STDOUT, STDERR readable and writable to any io.Reader or io.Writer
+    * Adjustable memory size
+    * Enable scripting into your Go app.
 
-What it can't do: - compile a higher-level language to machine code (maybe in a
-separate package) - Stack bounds checking (Go has bounds checking, though, so it
-will just panic on overflow) - Printing ASCII/UTF-8 (yet) - Reading from Stdin
-(yet) - Self-modifying code (code and stack reside in different areas) -
-Multi-word return values (maybe in the future) - Not even remotely thread-safe.
-Use different VM's to execute code concurrently.
+What it can't do:
 
-What it can do: - Function calls. - Fibonacci numbers! Ackermann functions!
-Factorials! - Tail recursion. - Add your own instructions to make it do more. -
-Hook vm.Stdout to an http.ResponseWriter to script your web apps!
+    * compile a higher-level language to machine code (maybe in a separate package)
+    * Stack bounds checking (Go has bounds checking, though, so it will just panic on overflow)
+    * Printing ASCII/UTF-8 (yet)
+    * Reading from Stdin (yet)
+    * Self-modifying code (code and stack reside in different areas)
+    * Multi-word return values (maybe in the future)
+    * Not even remotely thread-safe. Use different VM's to execute code concurrently.
+
+What it can do:
+
+    * Function calls.
+    * Fibonacci numbers! Ackermann functions! Factorials!
+    * Tail recursion.
+    * Add your own instructions to make it do more.
+    * Hook vm.Stdout to an http.ResponseWriter to script your web apps!
 
 ## Usage
 

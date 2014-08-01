@@ -241,7 +241,7 @@ func TestRun(t *testing.T) {
 		vm, err = New(1 << 10)
 		output := &bytes.Buffer{}
 		vm.Stdout = output
-        vm.Stderr = Bitbucket{}
+		vm.Stderr = Bitbucket{}
 		f(vm, t)
 	}
 }

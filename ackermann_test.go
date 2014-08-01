@@ -1,18 +1,11 @@
 package vm
 
-import (
-	"bytes"
-	"testing"
-)
-
 // Implements the Ackermann Phi function,
 // Which is a generalization of addition, multiplication,
 // exponentiation, and all hyperoperations
-func TestAckermannPhi(t *testing.T) {
+func ExampleAckermannPhi() {
 	vm, _ := New(1 << 10)
-	output := &bytes.Buffer{}
-	vm.Stdout = output
-    vm.Stderr = Bitbucket{}
+	vm.Stderr = Bitbucket{}
 
 	phi, case2, case3, case4, recur := 12, 22, 36, 46, 49
 	a, b, n := 0, 1, 2
@@ -71,7 +64,5 @@ func TestAckermannPhi(t *testing.T) {
 	}
 
 	vm.Run(prog, 0)
-	if output.String() != "27\n" {
-		t.Error("Error on Ackermann Phi test: Phi(3, 3, 2) = 27, actual: ", output.String())
-	}
+	// Output: 27
 }

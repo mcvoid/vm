@@ -1,15 +1,8 @@
 package vm
 
-import (
-	"bytes"
-	"testing"
-)
-
-func TestFactorialRecursive(t *testing.T) {
+func ExampleFactorialRecursive() {
 	vm, _ := New(1 << 10)
-	output := &bytes.Buffer{}
-	vm.Stdout = output
-    vm.Stderr = Bitbucket{}
+	vm.Stderr = Bitbucket{}
 
 	fact, recur := 8, 15
 	n := 0
@@ -34,16 +27,12 @@ func TestFactorialRecursive(t *testing.T) {
 		Return,
 	}
 	vm.Run(prog, 0)
-	if output.String() != "120\n" {
-		t.Error("Factorial test error: expected fact(5) = 120, actual: ", output)
-	}
+	//Output: 120
 }
 
-func TestFactorialTailRecursive(t *testing.T) {
+func ExampleFactorialTailRecursive() {
 	vm, _ := New(1 << 10)
-	output := &bytes.Buffer{}
-	vm.Stdout = output
-    vm.Stderr = Bitbucket{}
+	vm.Stderr = Bitbucket{}
 
 	fact, recur := 10, 17
 	n, acc := 0, 1
@@ -73,7 +62,5 @@ func TestFactorialTailRecursive(t *testing.T) {
 	}
 
 	vm.Run(prog, 0)
-	if output.String() != "120\n" {
-		t.Error("Factorial tail resursion test error: expected fact(5) = 120, actual: ", output)
-	}
+	// Output: 120
 }
