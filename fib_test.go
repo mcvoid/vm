@@ -2,7 +2,7 @@ package vm
 
 func ExampleFibonacci() {
 	vm, _ := New(1 << 10)
-	vm.Stderr = Bitbucket{}
+	vm.Stderr = Bitbucket
 
 	fib := 8
 	test_eq_1 := 15
@@ -47,7 +47,7 @@ func ExampleFibonacci() {
 
 func ExampleFibonacciTail() {
 	vm, _ := New(1 << 10)
-	vm.Stderr = Bitbucket{}
+	vm.Stderr = Bitbucket
 
 	fib, recur := 12, 19
 	a, b, n := 0, 1, 2

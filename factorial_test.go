@@ -2,7 +2,7 @@ package vm
 
 func ExampleFactorialRecursive() {
 	vm, _ := New(1 << 10)
-	vm.Stderr = Bitbucket{}
+	vm.Stderr = Bitbucket
 
 	fact, recur := 8, 15
 	n := 0
@@ -32,7 +32,7 @@ func ExampleFactorialRecursive() {
 
 func ExampleFactorialTailRecursive() {
 	vm, _ := New(1 << 10)
-	vm.Stderr = Bitbucket{}
+	vm.Stderr = Bitbucket
 
 	fact, recur := 10, 17
 	n, acc := 0, 1

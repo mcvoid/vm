@@ -374,6 +374,7 @@ func init() {
 					fmt.Fprint(vm.Stdout, val)
 				}
 				fmt.Fprintln(vm.Stdout)
+                vm.Stdout.Flush()
 			},
 			"print",
 			1,

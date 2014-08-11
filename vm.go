@@ -33,9 +33,9 @@ What it can do:
 package vm
 
 import (
+    "bufio"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 )
 
@@ -47,9 +47,9 @@ type VM struct {
 	FP     int            // FP, or the frame pointer, is the address of the start of the current function's stack frame.
 	IP     int            // IP, or the instruction pointer, is the address of the next instruction to execute.
 	IS     InstructionSet // The set of instructions which can be executed on this VM.
-	Stdin  io.Reader      // Stdin is the VM's standard input reader. This is the reader which Read reads from.
-	Stdout io.Writer      // Stdout is the VM's standard output writer. This is what Print writes to.
-	Stderr io.Writer      // Stderr is the VM's standard error writer. This is what stack traces write to.
+	Stdin  *bufio.Reader      // Stdin is the VM's standard input reader. This is the reader which Read reads from.
+	Stdout *bufio.Writer      // Stdout is the VM's standard output writer. This is what Print writes to.
+	Stderr *bufio.Writer      // Stderr is the VM's standard error writer. This is what stack traces write to.
 }
 
 // A program is a sequence of integers.
@@ -58,9 +58,10 @@ type Program []int
 
 // A fake io.Writer which discards everything written to it, like /dev/null.
 // Useful for suppressing a VM's output on Stdout or Stderr.
-type Bitbucket struct{}
+type nullWriter struct{}
+func (bit nullWriter) Write(b []byte) (n int, err error) { return len(b), nil }
 
-func (bit Bitbucket) Write(b []byte) (n int, err error) { return len(b), nil }
+var Bitbucket = bufio.NewWriter(nullWriter{})
 
 // New creates a new virtual machine.
 //
@@ -73,9 +74,9 @@ func New(size int) (vm *VM, err error) {
 	vm = &VM{
 		Mem:    make([]int, size),
 		IS:     Default,
-		Stdin:  os.Stdin,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
+		Stdin:  bufio.NewReader(os.Stdin),
+		Stdout: bufio.NewWriter(os.Stdout),
+		Stderr: bufio.NewWriter(os.Stderr),
 	}
 	return vm, err
 }

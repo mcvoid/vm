@@ -1,10 +1,12 @@
 package vm
 
 import (
+    "bufio"
 	"bytes"
 	"testing"
-	_ "time"
 )
+
+var output *bytes.Buffer
 
 func testSmoke(vm *VM, t *testing.T) {
 	prog := Program{Halt}
@@ -29,8 +31,8 @@ func testPrint(vm *VM, t *testing.T) {
 		Halt,
 	}
 	vm.Run(prog, 0)
-	if vm.Stdout.(*bytes.Buffer).String() != "10\n" {
-		t.Error("Error on Print test: expected: 10\n actual: ", vm.Stdout.(*bytes.Buffer).String())
+	if output.String() != "10\n" {
+		t.Error("Error on Print test: expected: 10\n actual: ", output.String())
 	}
 }
 
@@ -43,8 +45,8 @@ func testPop(vm *VM, t *testing.T) {
 		Halt,
 	}
 	vm.Run(prog, 0)
-	if vm.Stdout.(*bytes.Buffer).String() != "10\n" {
-		t.Error("Error on pop test: expected: 10\n actual: ", vm.Stdout.(*bytes.Buffer).String())
+	if output.String() != "10\n" {
+		t.Error("Error on pop test: expected: 10\n actual: ", output.String())
 	}
 }
 
@@ -68,8 +70,8 @@ func testLoad(vm *VM, t *testing.T) {
 	}
 	vm.Mem[100] = 10
 	vm.Run(prog, 0)
-	if vm.Stdout.(*bytes.Buffer).String() != "10\n" {
-		t.Error("Error on load test: expected: 10\n actual: ", vm.Stdout.(*bytes.Buffer).String())
+	if output.String() != "10\n" {
+		t.Error("Error on load test: expected: 10\n actual: ", output.String())
 	}
 }
 
@@ -82,8 +84,8 @@ func testAdd(vm *VM, t *testing.T) {
 		Halt,
 	}
 	vm.Run(prog, 0)
-	if vm.Stdout.(*bytes.Buffer).String() != "30\n" {
-		t.Error("Error on add test: expected: 30\n actual: ", vm.Stdout.(*bytes.Buffer).String())
+	if output.String() != "30\n" {
+		t.Error("Error on add test: expected: 30\n actual: ", output.String())
 	}
 }
 
@@ -96,8 +98,8 @@ func testSubtract(vm *VM, t *testing.T) {
 		Halt,
 	}
 	vm.Run(prog, 0)
-	if vm.Stdout.(*bytes.Buffer).String() != "-10\n" {
-		t.Error("Error on sub test: expected: -10\n actual: ", vm.Stdout.(*bytes.Buffer).String())
+	if output.String() != "-10\n" {
+		t.Error("Error on sub test: expected: -10\n actual: ", output.String())
 	}
 }
 
@@ -124,8 +126,8 @@ func testJumpIfNotZero(vm *VM, t *testing.T) {
 		Halt,
 	}
 	vm.Run(prog, 0)
-	if vm.Stdout.(*bytes.Buffer).String() != "20\n10\n" {
-		t.Error("Error on jnz test: expected: 20\n10\n actual: ", vm.Stdout.(*bytes.Buffer).String())
+	if output.String() != "20\n10\n" {
+		t.Error("Error on jnz test: expected: 20\n10\n actual: ", output.String())
 	}
 }
 
@@ -152,8 +154,8 @@ func testJumpIfZero(vm *VM, t *testing.T) {
 		Halt,
 	}
 	vm.Run(prog, 5)
-	if vm.Stdout.(*bytes.Buffer).String() != "10\n20\n" {
-		t.Error("Error on jz test: expected: 10\n20\n actual: ", vm.Stdout.(*bytes.Buffer).String())
+	if output.String() != "10\n20\n" {
+		t.Error("Error on jz test: expected: 10\n20\n actual: ", output.String())
 	}
 }
 
@@ -169,8 +171,8 @@ func testCallReturn(vm *VM, t *testing.T) {
 		Return,
 	}
 	vm.Run(prog, 0)
-	if vm.Stdout.(*bytes.Buffer).String() != "4\n" {
-		t.Error("Error on call/return test: expected: 4\n actual: ", vm.Stdout.(*bytes.Buffer).String())
+	if output.String() != "4\n" {
+		t.Error("Error on call/return test: expected: 4\n actual: ", output.String())
 	}
 }
 
@@ -187,10 +189,10 @@ func testLoadArg(vm *VM, t *testing.T) {
 		Return,
 	}
 	vm.Run(prog, 0)
-	if vm.Stdout.(*bytes.Buffer).String() != "5\n" {
-		t.Error("Error on loadarg 1-parameter test: expected: 5\n actual: ", vm.Stdout.(*bytes.Buffer).String())
+	if output.String() != "5\n" {
+		t.Error("Error on loadarg 1-parameter test: expected: 5\n actual: ", output.String())
 	}
-	vm.Stdout.(*bytes.Buffer).Truncate(0)
+	output.Truncate(0)
 	f = 10
 	prog = Program{
 		Push, 2,
@@ -204,8 +206,8 @@ func testLoadArg(vm *VM, t *testing.T) {
 		Return,
 	}
 	vm.Run(prog, 0)
-	if vm.Stdout.(*bytes.Buffer).String() != "5\n" {
-		t.Error("Error on loadarg 2-parameter test: expected: 5\n actual: ", vm.Stdout.(*bytes.Buffer).String())
+	if output.String() != "5\n" {
+		t.Error("Error on loadarg 2-parameter test: expected: 5\n actual: ", output.String())
 	}
 }
 
@@ -222,8 +224,8 @@ func testStoreArg(vm *VM, t *testing.T) {
 		Return,
 	}
 	vm.Run(prog, 0)
-	if vm.Stdout.(*bytes.Buffer).String() != "3\n" {
-		t.Error("Error on storarg test: expected: 3\n actual: ", vm.Stdout.(*bytes.Buffer).String())
+	if output.String() != "3\n" {
+		t.Error("Error on storarg test: expected: 3\n actual: ", output.String())
 	}
 }
 
@@ -239,9 +241,9 @@ func TestRun(t *testing.T) {
 	}
 	for _, f := range tests {
 		vm, err = New(1 << 10)
-		output := &bytes.Buffer{}
-		vm.Stdout = output
-		vm.Stderr = Bitbucket{}
+        output = &bytes.Buffer{}
+		vm.Stdout = bufio.NewWriter(output)
+		vm.Stderr = Bitbucket
 		f(vm, t)
 	}
 }

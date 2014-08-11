@@ -5,7 +5,7 @@ package vm
 // exponentiation, and all hyperoperations
 func ExampleAckermannPhi() {
 	vm, _ := New(1 << 10)
-	vm.Stderr = Bitbucket{}
+	vm.Stderr = Bitbucket
 
 	phi, case2, case3, case4, recur := 12, 22, 36, 46, 49
 	a, b, n := 0, 1, 2
